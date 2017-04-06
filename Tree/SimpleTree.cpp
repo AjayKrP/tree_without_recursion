@@ -105,4 +105,3 @@ int main(){
     std::cin >> data;
     st.searchData(root, data);
 }
-<script src="https://gist.github.com/AjayKrP/ea8d9901d4868f52e059275e48fe3b12.js"></script>
