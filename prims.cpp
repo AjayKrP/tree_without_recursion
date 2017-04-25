@@ -73,3 +73,9 @@ int main() {
     std::cout << "Total cost of the tree is: " << minCost << std::endl;
     return 0;
 }
+
+/*
+0 4 0 3 
+4 0 2 0
+2 0 0 1
+3 0 1 0*/
