@@ -1,220 +1,241 @@
-#include <iostream> 
-#include <algorithm> // std::max
 
-struct Node {
-  int data;
-  Node* left;
-  Node* right;
-};
-
-class Tree {
+#include<iostream>
+//#define nullptr __null
+class AVL_Tree{
 public:
-  Tree() : root_(nullptr) { }
-
-  int GetHeight(Node* root);
-  int Diff(Node* root);
-  Node* RightRight_Rotation(Node* root);
-  Node* LeftLeft_Rotation(Node* root);
-  Node* LeftRight_Rotation(Node* root);
-  Node* RightLeft_Rotation(Node* root);
-  Node* Balance(Node* root);
-  Node* Insert(Node* root, int value);
-  void Display(Node* root, int level);
-  void Inorder(Node* root);
-  void Preorder(Node* root);
-  void Postorder(Node* root);
-
-  Node* root() { return this->root_; }
-
+    AVL_Tree():left(nullptr), right(nullptr), root(nullptr){}
+    int height(AVL_Tree* );
+    int Balence_Factor(AVL_Tree*);
+    AVL_Tree* RR_Rotaion(AVL_Tree*);
+    AVL_Tree* LL_Rotaion(AVL_Tree*);
+    AVL_Tree* LR_Rotaion(AVL_Tree*);
+    AVL_Tree* RL_Rotaion(AVL_Tree*);
+    AVL_Tree* Balance(AVL_Tree*);
+    AVL_Tree* Insert(AVL_Tree*, const std::string&, const std::string& key);
+    void displayTree(AVL_Tree*, int);
+    void Inorder(AVL_Tree*);
+    void PreOrder(AVL_Tree*);
+    void PostOrder(AVL_Tree*);
+    AVL_Tree* deleteNode(AVL_Tree* root, std::string meaning, std::string& key);
+    AVL_Tree* minValueNode(AVL_Tree* root);
+    AVL_Tree* removeMin(AVL_Tree* root);
 private:
- Node* root_;
+    std::string _meaning;
+    std::string _key;
+    AVL_Tree* left;
+    AVL_Tree* right;
+    AVL_Tree* root;
 };
 
 
-int Tree::GetHeight(Node *temp) {
-  int h = 0;
-  if (temp) {
-    int l_GetHeight = GetHeight(temp->left);
-    int r_GetHeight = GetHeight(temp->right);
-    int max_GetHeight = std::max(l_GetHeight, r_GetHeight);
-    h = max_GetHeight + 1;
-  }
-
-  return h;
-}
-
-
-int Tree::Diff(Node* temp) {
-  int l_GetHeight = GetHeight(temp->left);
-  int r_GetHeight = GetHeight(temp->right);
-  int b_factor = (l_GetHeight - r_GetHeight);
-  return b_factor;
-}
-
-Node* Tree::RightRight_Rotation(Node* parent) {
-  Node* temp;
-  temp = parent->right;
-  parent->right = temp->left;
-  temp->left = parent;
-  return temp;
-}
-
-Node* Tree::LeftLeft_Rotation(Node* parent) {
-  Node* temp;
-  temp = parent->left;
-  parent->left = temp->right;
-  temp->right = parent;
-  return temp;
-}
-
-Node* Tree::LeftRight_Rotation(Node* parent) {
-  Node* temp = parent->left;
-  parent->left = RightRight_Rotation(temp);
-  return LeftLeft_Rotation(parent);
-}
-
-Node* Tree::RightLeft_Rotation(Node* parent) {
-  Node* temp = parent->right;
-  parent->right = LeftLeft_Rotation(temp);
-  return RightRight_Rotation(parent);
-}
-
-Node* Tree::Balance(Node* temp) {
-  int balanceFactor = Diff(temp);
-  
-  if (balanceFactor > 1) {
-    if (Diff (temp->left) > 0) {
-      temp = LeftLeft_Rotation(temp);
-    } else {
-      temp = LeftRight_Rotation(temp);
+int AVL_Tree::height(AVL_Tree* temp){
+    int ht = 0;
+    if(temp != nullptr){
+        int l_height = height(temp->left);
+        int r_height = height(temp->right);
+        int max_height = std::max(l_height, r_height);
+        ht = max_height + 1;
     }
-  } else if (balanceFactor < -1) {
-    if (Diff(temp->right) > 0) {
-      temp = RightLeft_Rotation(temp);        
-    } else {
-      temp = RightRight_Rotation(temp);
-    }
-  }
-
-  return temp;
+    return ht;
 }
 
-Node* Tree::Insert(Node* root, int value) {
-  if (!root) {
-    root = new Node;
-    root->data = value;
-    root->left = NULL;
-    root->right = NULL;
+int AVL_Tree::Balence_Factor(AVL_Tree* temp){
+    int l_height = 0;
+    int r_height = 0;
+    int b_factor = 0;
+    if(temp != nullptr) {
+        l_height = height(temp->left);
+        r_height = height(temp->right);
+        b_factor = l_height - r_height;
+    }
+    return b_factor;
+}
+
+AVL_Tree* AVL_Tree::LL_Rotaion(AVL_Tree* parent){
+    AVL_Tree* temp;
+    temp = parent->left;
+    parent->left = temp->right;
+    temp->right = parent;
+    return temp;
+}
+
+AVL_Tree* AVL_Tree::RR_Rotaion(AVL_Tree* parent){
+    AVL_Tree* temp;
+    temp = parent->right;
+    parent->right = temp->left;
+    temp->left = parent;
+    return temp;
+}
+
+AVL_Tree* AVL_Tree::LR_Rotaion(AVL_Tree* parent){
+    AVL_Tree* temp;
+    temp = parent->left;
+    parent->left = RR_Rotaion(temp);
+    return LL_Rotaion(parent);
+}
+
+AVL_Tree* AVL_Tree::RL_Rotaion(AVL_Tree* parent){
+    AVL_Tree* temp;
+    temp = parent->right;
+    parent->right = LL_Rotaion(temp);
+    return RR_Rotaion(parent);
+}
+
+AVL_Tree* AVL_Tree::Balance(AVL_Tree* temp){
+    int bal_factor = Balence_Factor(temp);
+    if(bal_factor > 1){
+        if(Balence_Factor(temp->left) > 0){
+            temp = LL_Rotaion(temp);
+        }
+        else{
+            temp = LR_Rotaion(temp);
+        }
+    }
+    else if( bal_factor < -1){
+        if(Balence_Factor(temp->right) > 0){
+            temp = RL_Rotaion(temp);
+        }
+        else{
+            temp = RR_Rotaion(temp);
+        }
+    }
+    return temp;
+}
+
+AVL_Tree* AVL_Tree::Insert(AVL_Tree* root,const std::string& meaning, const std::string& key){
+    if(root == nullptr){
+        root = new AVL_Tree;
+        root->_meaning = meaning;
+        root->_key = key;
+        root->left = nullptr;
+        root->right = nullptr;
+        return root;
+    }
+    else if(meaning < root->_meaning){
+        root->left = Insert(root->left, meaning, key);
+        root = Balance(root);
+    }
+    else if(meaning >= root->_meaning){
+        root->right = Insert(root->right, meaning, key);
+        root = Balance(root);
+    }
     return root;
-  } else if (value < root->data) {
-    root->left = Insert(root->left, value);
-    root = Balance(root);
-  } else if (value >= root->data) {
-    root->right = Insert(root->right, value);
-    root = Balance(root);
-  }
-
-  return root;
 }
 
-void Tree::Display(Node* current, int level) {
-  if (!current) return;
-
-  Display(current->right, level + 1);
-  std::cout << std::endl;
-  if (current == root()) {
-    std::cout<<"Root -> ";
-    for (int i = 0; i < level && current != root(); ++i) {
-      std::cout << "           ";
+void AVL_Tree::displayTree(AVL_Tree* ptr, int level){
+    int i;
+    if(ptr != nullptr){
+        displayTree(ptr->right, level+1);
+        std::cout << std::endl;
+        if(ptr == root)
+            std::cout << "root -> ";
+        for( i = 0; i < level && ptr != root ; ++i){
+            std::cout << " " << ptr->_meaning << std::endl;
+        }
+        displayTree(ptr->left, level+1);
     }
-    std::cout << current->data;
-    Display(current->left, level+1);
-  }
 }
 
-void Tree::Inorder(Node* root) {
-  if (!root) {
-    return;
-  }
-  
-  Inorder(root->left);
-  std::cout << root->data<< "      ";
-  Inorder(root->right);
-}
-
-void Tree::Preorder(Node* root) {
-  if (!root) return;
-
-  std::cout << root->data << "  ";
-  Preorder(root->left);
-  Preorder(root->right);
-}
-
-void Tree::Postorder(Node* root) {
-  if (!root) return;
-
-  Postorder(root->left);
-  Postorder(root->right);
-  std::cout<<root->data<<"  ";
-}
-
-/**
- *  * Prompts user for input selection using stdin.
- *   */
- int main() {
-  int choice = 0, item = 0;
-  Tree avl;
-
-  while(1) {
-    std::cout << "Enter your choice: " << std::endl;
-    std::cout << "1: Insert a value" << std::endl;
-    std::cout << "2: Display balanced AVL Tree" << std::endl;
-    std::cout << "3: Print Inorder traversal" << std::endl;
-    std::cout << "4: Print Preorder traversal" << std::endl;
-    std::cout << "5: Print Postorder traversal" << std::endl;
-    std::cout << "6: Exit" << std::endl;
-    std::cin >> choice;
-    switch(choice) {
-      case 1:
-      std::cout << "Enter value to be Inserted: ";
-      std::cin >> item;
-      avl.Insert(avl.root(), item);
-      break;
-      case 2:
-      if (!avl.root()) {
-        std::cout << "Tree is empty!" << std::endl;
-        continue;
-      }
-      std::cout << "Balanced AVL Tree:" <<std::endl;
-      avl.Display(avl.root(), 1);
-      break;
-      
-      case 3:
-      std::cout << "Inorder:" << std::endl;
-      avl.Inorder(avl.root());
-      std::cout << std::endl;
-      break;
-      
-      case 4:
-      std::cout << "Preorder: " << std::endl;
-      avl.Preorder(avl.root());
-      std::cout << std::endl;
-      break;
-      
-      case 5:
-      std::cout << "Postorder: " << std::endl;
-      avl.Inorder(avl.root());
-      std::cout << std::endl;    
-      break;
-      
-      case 6: 
-      exit(1);
-      break;
-      
-      default:
-      std::cout << "Wrong choice" << std::endl;
+void AVL_Tree::Inorder(AVL_Tree* temp){
+    if(temp == nullptr){
+        return;
     }
-  }
+    else{
+        Inorder(temp->left);
+        std::cout << temp->_key << " -> " << temp->_meaning << " ";
+        Inorder(temp->right);
+    }
+    std::cout << std::endl;
+}
 
-  return 0;
+void AVL_Tree::PostOrder(AVL_Tree* temp){
+    if(temp == nullptr){
+        return;
+    }
+    else{
+        std::cout << temp->_key << " -> " << temp->_meaning << " ";
+        PostOrder(temp->left);
+        PostOrder(temp->right);
+    }
+    std::cout << std::endl;
+}
+
+void AVL_Tree::PreOrder(AVL_Tree* temp){
+    if(temp == nullptr){
+        return;
+    }
+    else{
+        PreOrder(temp->left);
+        PreOrder(temp->right);
+        std::cout << temp->_key << " -> " << temp->_meaning << " ";
+    }
+    std::cout << std::endl;
+}
+
+AVL_Tree* AVL_Tree::minValueNode(AVL_Tree* node){
+    AVL_Tree* current = node;
+    if(current != nullptr) {
+        while (current->left != nullptr) {
+            current = current->left;
+        }
+    }
+    return current;
+}
+
+AVL_Tree* AVL_Tree::removeMin(AVL_Tree *root) {
+    if( root == nullptr) { return nullptr;}
+        if (root->left == nullptr) {
+            return root->right;
+        }
+    root->left = removeMin(root->left);
+    root = Balance(root);
+    return root;
+}
+
+AVL_Tree* AVL_Tree::deleteNode(AVL_Tree *root, std::string meaning, std::string& key) {
+    if(root == nullptr){
+        return root;
+    }
+    if(meaning < root->_meaning){
+        root->left = deleteNode(root->left, meaning, key);
+    }
+    else if(meaning > root->_meaning){
+        root->right = deleteNode(root->right, meaning, key);
+    } else{
+        AVL_Tree* Left  = root->left;
+        AVL_Tree* Right = root->right;
+        delete root;
+        if(Right  == nullptr){
+            return Left;
+        }
+        root = minValueNode(Right);
+        root->left = Left;
+        root->right = removeMin(Right);
+        return root;
+    }
+    root = Balance(root);
+    return root;
+}
+
+int main(){
+    AVL_Tree *root = nullptr, a;
+
+    std::string meaning, key;
+    char ch = 'y';
+    do{
+        std::cout << "Enter key?" ;std::cin >> key;
+        std::cout << "Enter meaning?";
+        std::cin >> meaning;
+        root = a.Insert(root, meaning, key);
+        std::cout << "Do you want to enter more (y/n)?";
+        std::cin >> ch;
+    }while(ch != 'n');
+    // std::cout << "Height is " << a.height(root) << "\n";
+    a.Inorder(root);
+    a.PreOrder(root);
+    a.PostOrder(root);
+    std::cout << "Enter key? ";std::cin >> key;
+    std::cout << "Enter meaning to be deleted? ";std::cin >> meaning;
+    root = a.deleteNode(root, meaning, key);
+    a.Inorder(root);
 }
