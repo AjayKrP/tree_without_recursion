@@ -1,152 +1,149 @@
-#include<iostream>
-#define SIZE 10
+#include <iostream>
+using namespace std;
 
-class HashTable{
+class Hash{
 public:
-    HashTable(): _meaning(""){}
-    HashTable (const HashTable& h) = delete;
-    HashTable& operator = (HashTable& sh) = delete;
-    HashTable(const HashTable&& ha) = delete;
-    int hashFunction(char key);
-    HashTable* createNode(const std::string& str);
-    void insertData(char key, const std::string& str);
-    void printData();
-    bool searchMeaning(char key, const std::string& str);
-    int keyGenerate(const std::string& str);
-    void updateMeaning(char key,const std::string& str);
-    void deleteMeaning(const std::string& str);
-    //virtual ~HashTable();
+    int hashFunction(int value);
+    int calculateHashValue(string meaning);
+    Hash*createNode(string meaning);
+    void insertNode(string meaning);
+    bool search(string name);
+    void modifyNode(string name);
+    void deleteNode(string meaning);
+    void printNode();
+
 private:
-    std::string _meaning;
-    HashTable* next;
-    HashTable *_header[10]={nullptr,};
-    HashTable* tail[10] = {nullptr,};
+    string meaning;
+    Hash* next;
+    Hash* header[10] = {nullptr, };
+    Hash* tail[10] = {nullptr, };
 };
 
-int HashTable::hashFunction(char key){
-    return int(key) % SIZE ;
+int Hash::hashFunction(int value) {
+    return value%10;
 }
 
-int HashTable::keyGenerate(const std::string& str){
-    int sum = 0;
-    for(unsigned int i = 0; i < str.size(); ++i){
-        sum += str[i];
+int Hash::calculateHashValue(string meaning) {
+    int len = 0;
+    for(int i = 0; i < meaning.size(); ++i){
+        len += meaning[i];
     }
-    return sum;
+    return len;
 }
 
-HashTable* HashTable::createNode(const std::string& meaning){
-    HashTable* temp = new HashTable();
-    temp->_meaning = meaning;
+Hash* Hash::createNode(string meaning) {
+    Hash* temp = new Hash;
+    temp->meaning = meaning;
     temp->next = nullptr;
     return temp;
 }
 
-
-void HashTable::insertData(char key, const std::string& meaning){
-    //int key = keyGenerate(meaning);
-    int k = hashFunction(key);
-    HashTable* temp = createNode(meaning);
-    if(_header[k] == nullptr){
-        _header[k] = temp;
-        tail[k] = _header[k];
-    }
-    else{
+void Hash::insertNode(string meaning ){
+    int k = hashFunction(calculateHashValue(meaning));
+    Hash* temp = createNode(meaning);
+    if(header[k] == nullptr){
+        header[k] = temp;
+        tail[k] = temp;
+    } else{
         tail[k]->next = temp;
         tail[k] = temp;
     }
 }
 
-void HashTable::printData(){
-    for(int i = 0;i < SIZE; ++i)	{
-        HashTable* temp = _header[i];
-        while(temp != nullptr){
-            std::cout << temp->_meaning << " ";
-            temp = temp->next;
-            if(temp == nullptr){
-                std::cout << std::endl;
+
+void Hash::printNode() {
+    for(int i = 0; i < 10; ++i){
+        if(header[i] != nullptr){
+            cout << i << " -> ";
+            Hash* temp = header[i];
+            while(temp != nullptr){
+                cout << temp->meaning << " ";
+                temp = temp->next;
             }
+            cout << endl;
         }
     }
 }
 
-bool HashTable::searchMeaning(char key, const std::string& str) {
-    int m_index = hashFunction(key);
-    HashTable* temp = _header[m_index];
-    while (temp != nullptr) {
-        if (temp->_meaning == str) {
-            return true;
-        }
+void Hash::deleteNode(string meaning) {
+    int k = hashFunction(calculateHashValue(meaning));
+    Hash* temp = header[k], *prev;
+    if (temp != NULL && temp->meaning == meaning) {
+        header[k] = temp->next;   
+        delete (temp);           
+        return;
+    }
+    
+    while (temp != NULL && temp->meaning != meaning) {
+        prev = temp;
         temp = temp->next;
+    }
+    if (temp == NULL) return;
+    
+    prev->next = temp->next;
+    delete(temp);  
+}
+
+bool Hash::search(string name) {
+    int k = hashFunction(calculateHashValue(name));
+    if(header[k] == nullptr){
+        return false;
+    }
+    else{
+        Hash* temp = header[k];
+        while(temp != nullptr){
+            if(temp->meaning == name){
+                return true;
+            }
+            temp = temp->next;
+        }
     }
     return false;
 }
 
-void HashTable::updateMeaning(char key, const std::string &str) {
-    std::string n_meaning;
-    int k = hashFunction(key);
-    if(searchMeaning(key, _meaning)){
-        std::cout << "Enter new meaning? ";
-        std::cin >> n_meaning;
-        HashTable* temp = _header[k];
+void Hash::modifyNode(string name) {
+    int k = hashFunction(calculateHashValue(name));
+    string n_meaning;
+    Hash* temp = header[k];
+    if(temp == nullptr){
+        return;
+    } else{
         while(temp != nullptr){
-            if(temp->_meaning == _meaning){
-                temp->_meaning= n_meaning;
+            if(temp->meaning == name){
+                cout << "Enter new meaning? ";cin >> n_meaning;
+                temp->meaning = n_meaning;
             }
             temp = temp->next;
         }
     }
+    cout << "Node not found!!!\n";
 }
 
-int main(){
-
-    HashTable h;
-    std::string meaning, s_meaning;
-    char key;
-    int choise;
+int main() {
+    Hash h;
     char ch = 'y';
+    string meaning;
     do{
-        std::cout << "\n1.Insert\n2.Display\n3.Search\n4.Update\n";
-        std::cout << "Enter your choice? ";
-        std::cin >> choise;
-        switch (choise){
-            case 1:
-                do{
-                    std::cout << "Enter key? ";
-                    std::cin >> key;
-                    std::cout << "Enter meaning? ";
-                    std::cin >> meaning;
-                    h.insertData(key, meaning);
-                    std::cout << "Do you want to enter more meaning(y/n) ?";
-                    std::cin >> ch;
-                }while (ch != 'n');
-                break;
-            case 2:
-                h.printData();
-                break;
-            case 3:
-
-                std::cout << "Enter key? ";std::cin >> key;
-                std::cout << "Enter meaning which you want to search?";std::cin >> s_meaning;
-                if(h.searchMeaning(key, s_meaning)){
-                    std::cout << "meaning found!!";
-                }
-                else{
-                    std::cout << "Meaning not found!";
-                }
-                break;
-            case 4:
-            std::cout << "Enter key? ";
-            std::cin >> key;
-            std::cout << "Enter meaning which you want to update? ";
-            std::cin >> meaning;
-                h.updateMeaning(key, meaning);
-                break;
-            default:
-                break;
-        }
-        ch = 'y';
-        std::cout << "Do you want to continue(y/n)? ";
-        std::cin >> ch;
-    }while (ch != 'n');
+    cout << "Enter meaning:";
+    cin >> meaning;
+    h.insertNode(meaning);
+    cout << "Do you want to continue(y/n)? ";
+    cin >> ch;
+    }while(ch == 'y');
+    h.printNode();
+   /* cout << "Enter meaning:";
+    cin >> meaning;
+    if(h.search(meaning)){
+        cout << "Found!!!\n";
+    } else{
+        cout << "Not found!!!\n";
+    }
+    cout << "Enter meaning:";
+    cin >> meaning;
+    h.modifyNode(meaning);
+    h.printNode();*/
+    cout << "Enter meaning:";
+    cin >> meaning;
+    h.deleteNode(meaning);
+    h.printNode();
 }
