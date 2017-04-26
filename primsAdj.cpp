@@ -13,7 +13,7 @@ using iPair = std::pair<int, int>;
 class Graph {
 private:
     int vert;
-    list< pair<int, int> > *adj;
+    list<iPair> *adj;
 public:
     Graph(int V);
     void addEdge(int u, int v, int w);
@@ -22,7 +22,7 @@ public:
 
 Graph::Graph(int vert) {
     this->vert = vert;
-    adj = new list< pair<int, int> > [vert];
+    adj = new list<iPair> [vert];
 }
 
 void Graph::addEdge(int u, int v, int w) {
@@ -60,22 +60,21 @@ void Graph::primMST() {
             }
         }
     }
-    for (int i = 1; i < vert; ++i)
+    for (int i = 1; i < vert; ++i) {
         printf("%d - %d\n", parent[i], i);
-   
-    for (int i = 1; i < vert; ++i){
-        list< pair<int, int> >::iterator j;
-        for (j = adj[i].begin(); j != adj[i].end(); ++j) {
-            minCost += (*j).second;
-        }
     }
+
+    for (int i = 1; i < vert; ++i) {
+        minCost += adj[parent[i]].front().second;
+    }
+
     cout << "Total cost is: " << minCost << endl;
 }
 
 
 int main()
 {
-    int V = 9;
+    int V = 4;
     Graph g(V);
     g.addEdge(0, 1, 4);
     g.addEdge(0, 3, 3);
